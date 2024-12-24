@@ -1,0 +1,2 @@
+#define PIN_MOTOR_PWM_LEFT  32
+#define PIN_MOTOR_PWM_RIGHT 33
