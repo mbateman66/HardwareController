@@ -3,23 +3,10 @@
 */
 
 #ifndef COMMANDS_H
-#define COMMANDS_H
+   #define COMMANDS_H
 
-#define ANALOG_READ    'a'
-#define GET_BAUDRATE   'b' // No args on command, return int
-#define PIN_MODE       'c'
-#define DIGITAL_READ   'd'
-#define READ_ENCODERS  'e'
-#define MOTOR_SPEEDS   'm'
-#define MOTOR_RAW_PWM  'o' // left: 0-255, right: 0-255
-#define PING           'p'
-#define RESET_ENCODERS 'r'
-#define SERVO_WRITE    's'
-#define SERVO_READ     't'
-#define UPDATE_PID     'u'
-#define DIGITAL_WRITE  'w'
-#define ANALOG_WRITE   'x'
-#define LEFT            0
-#define RIGHT           1
+   #define SERVO_WRITE  's'   // indx +/-pct          example: s 4 45 5 -10
+   #define SERVO_READ   'S'   // list of servo indx   example: s 4 5    output: same as write format
+   #define SERVO_TRIM   't'   // indx trimNs          example: t 4 12 5 -13
 
 #endif

@@ -1,20 +1,27 @@
+#include <HardwareSerial.h>
 
-#define BAUDRATE 115200
 #include "commands.h"
 #include "pins.h"
+#include "servo.h"
+#include <Arduino.h>
 
+#define BAUDRATE 115200
 
+#define MAX_SERVOS 16
 /* Variable initialization */
 
-// A pair of varibles to help parse serial commands (thanks Fergs)
+// A pair of varibles to help parse serial commands
 int arg = 0;
 int indx = 0;
 
+Servo servo[MAX_SERVOS];
+
 // Character arrays to hold the first and second arguments
-#define MAX_ARGS 6
+#define MAX_ARGS 32
 #define MAX_DIGITS 16
 char argv[MAX_ARGS][MAX_DIGITS];  // Args as strings
 long argi[MAX_ARGS];              // The arguments converted to integers
+float argf[MAX_ARGS];              // The arguments converted to floats
 
 void runCommand() {
   Serial.println("");  
@@ -25,14 +32,17 @@ void runCommand() {
   }
   Serial.print("Cmd: ");
   Serial.println(cmd);
-  for (int i=0;i<MAX_ARGS;i++) {
-    argi[i] = argv[i] == NULL ? 0 : atoi(argv[i]);  // Convert to integers  
+  for (int i=0;i<=arg;i++) {
+    argi[i] = atoi(argv[i]);  // Convert to integers  
+    argf[i] = atof(argv[i]);  // Convert to integers  
     Serial.print("Arg[");
     Serial.print(i);
     Serial.print("]: '");
     Serial.print(argv[i]);
     Serial.print("'\t(");
     Serial.print(argi[i]);
+    Serial.print(")\t(");
+    Serial.print(argf[i]);
     Serial.println(")");
   }
     
@@ -40,16 +50,30 @@ void runCommand() {
   Serial.println("----------------");
   
   switch(cmd) {
-    case GET_BAUDRATE:
-      Serial.print("b ");
-      Serial.println(BAUDRATE);
+    case SERVO_WRITE: {
+      for (int i=1;i<arg+1;i+=2) {
+        int num = argi[i];
+        float deg = argf[i+1];
+        if (num>=0 && num<MAX_SERVOS) {
+          servo[num].setDeg(deg);
+        } else {
+          Serial.print("Out of range: ");
+          Serial.println(num);
+        }
+      }
       break;
-    case MOTOR_RAW_PWM:
-      int left  = argi[1]<255 ? argi[1] : 255; // Cap at 255
-      int right = argi[2]<255 ? argi[2] : 255; // Cap at 255
-      analogWrite(PIN_MOTOR_PWM_LEFT, left);
-      analogWrite(PIN_MOTOR_PWM_RIGHT, right);
+    }
+    case SERVO_READ: {
+      Serial.print("s ");
+      // int deg = servo1.getDeg();
+      // Serial.println(deg);
       break;
+    }
+    case SERVO_TRIM: {
+      float trim = argf[1];
+      // servo1.setTrim(trim);
+      break;
+    }
   }
 }
 
@@ -68,6 +92,8 @@ void setup() {
   Serial.println("Starting");
   pinMode(PIN_MOTOR_PWM_LEFT, OUTPUT);
   pinMode(PIN_MOTOR_PWM_RIGHT, OUTPUT);
+  servo[0].init(13,0);
+  servo[2].init(12,1);
 
 }
 
